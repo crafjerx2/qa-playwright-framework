@@ -6,11 +6,13 @@ import * as path from 'path';
 dotenv.config({ path: path.resolve(process.cwd(), '.env') });
 
 class ConfigManager {
-  private static instance: ConfigManager;
-  private readonly config: FrameworkConfig;
+  private static instance: ConfigManager | null = null;
+  private readonly _config: FrameworkConfig;
+  private readonly _initializedAt: Date;
 
   private constructor() {
-    this.config = EnvironmentConfig.load();
+    this._config = EnvironmentConfig.load();
+    this._initializedAt = new Date();
   }
 
   static getInstance(): ConfigManager {
@@ -20,36 +22,67 @@ class ConfigManager {
     return ConfigManager.instance;
   }
 
+  /**
+   * Reset singleton — useful for testing the config itself
+   * Only call this in test teardown
+   */
+  static resetInstance(): void {
+    ConfigManager.instance = null;
+  }
+
   get settings(): FrameworkConfig {
-    return this.config;
+    return this._config;
   }
 
   get baseUrl(): string {
-    return this.config.application.baseUrl;
+    return this._config.application.baseUrl;
   }
 
   get apiBaseUrl(): string {
-    return this.config.application.apiBaseUrl;
+    return this._config.application.apiBaseUrl;
+  }
+
+  get environment(): string {
+    return this._config.application.environment;
   }
 
   get browserType(): string {
-    return this.config.browser.type;
+    return this._config.browser.type;
   }
 
   get isHeadless(): boolean {
-    return this.config.browser.headless;
+    return this._config.browser.headless;
   }
 
   get testUsername(): string {
-    return this.config.testData.username;
+    return this._config.testData.username;
   }
 
   get testPassword(): string {
-    return this.config.testData.password;
+    return this._config.testData.password;
+  }
+
+  get initializedAt(): Date {
+    return this._initializedAt;
+  }
+
+  /**
+   * Debug info — useful for CI logs
+   */
+  printConfig(): void {
+    console.log('=== Framework Configuration ===');
+    console.log(`Environment: ${this.environment}`);
+    console.log(`Base URL: ${this.baseUrl}`);
+    console.log(`Browser: ${this.browserType}`);
+    console.log(`Headless: ${this.isHeadless}`);
+    console.log(`Initialized at: ${this._initializedAt.toISOString()}`);
+    console.log('================================');
   }
 }
 
-// Export singleton instance directly
-// This is the TypeScript/Node.js way of doing Singleton
-// Module cache ensures only one instance exists
+// MODULE SINGLETON — exported instance
+// Node.js module cache ensures this is created only once
 export const Config = ConfigManager.getInstance();
+
+// Also export the class for advanced use cases
+export { ConfigManager };
