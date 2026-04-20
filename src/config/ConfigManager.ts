@@ -1,3 +1,4 @@
+import { TestLogger } from '@utils/Logger';
 import { EnvironmentConfig, FrameworkConfig } from './EnvironmentConfig';
 import * as dotenv from 'dotenv';
 import * as path from 'path';
@@ -70,13 +71,13 @@ class ConfigManager {
    * Debug info — useful for CI logs
    */
   printConfig(): void {
-    console.log('=== Framework Configuration ===');
-    console.log(`Environment: ${this.environment}`);
-    console.log(`Base URL: ${this.baseUrl}`);
-    console.log(`Browser: ${this.browserType}`);
-    console.log(`Headless: ${this.isHeadless}`);
-    console.log(`Initialized at: ${this._initializedAt.toISOString()}`);
-    console.log('================================');
+    TestLogger.infor('=== Framework Configuration ===');
+    TestLogger.infor(`Environment: ${this.environment}`);
+    TestLogger.infor(`Base URL: ${this.baseUrl}`);
+    TestLogger.infor(`Browser: ${this.browserType}`);
+    TestLogger.infor(`Headless: ${this.isHeadless}`);
+    TestLogger.infor(`Initialized at: ${this._initializedAt.toISOString()}`);
+    TestLogger.infor('================================');
   }
 }
 

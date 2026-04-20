@@ -23,7 +23,7 @@ test.describe('Login Page test suite ', () => {
   test('@smoke Successful login redirects to inventory', async () => {
     await loginPage.login(Config.testUsername, Config.testPassword);
 
-    const url = await loginPage.getCurrentUrl();
+    const url = loginPage.getCurrentUrl();
     expect(url).toContain('inventory');
   });
 

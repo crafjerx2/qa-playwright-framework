@@ -7,7 +7,7 @@ test.describe('Login — Builder Pattern for test data', () => {
     const user = UserBuilder.standard().build();
 
     await loginPage.login(user.username, user.password);
-    const url = await loginPage.getCurrentUrl();
+    const url = loginPage.getCurrentUrl();
 
     expect(url).toContain('inventory');
   });
@@ -45,7 +45,7 @@ test.describe('Login — Builder Pattern for test data', () => {
     test(`@regression ${scenario.role} user login result`, async ({ loginPage }) => {
       const user = new UserBuilder().withRole(scenario.role).build();
       await loginPage.login(user.username, user.password);
-      const url = await loginPage.getCurrentUrl();
+      const url = loginPage.getCurrentUrl();
 
       if (scenario.shouldSucceed) {
         expect(url).toContain('inventory');

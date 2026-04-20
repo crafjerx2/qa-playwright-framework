@@ -41,7 +41,7 @@ export class InventoryPage extends BasePage implements INavigable, IListable {
     await this.waitForLoad();
   }
 
-  async getCurrentUrl(): Promise<string> {
+  getCurrentUrl(): string {
     return this.page.url();
   }
 
@@ -87,7 +87,7 @@ export class InventoryPage extends BasePage implements INavigable, IListable {
 
   async getProductCardByName(name: string): Promise<ProductCard | undefined> {
     const cards = await this.getAllProductCards();
-    for (let card of cards) {
+    for (const card of cards) {
       const cardName = await card.getName();
       if (name === cardName) return card;
     }

@@ -63,4 +63,7 @@ export const TestLogger = {
   apiResponse: (status: number, url: string): void => {
     Logger.debug(` <- ${status} ${url}`);
   },
+  infor: (description: string): void => {
+    Logger.info(`  -> INFO: ${description}`);
+  },
 };

@@ -1,4 +1,4 @@
-import { Page, Locator } from '@playwright/test';
+import { Locator } from '@playwright/test';
 import { TestLogger } from '@utils/Logger';
 export interface ProductDetails {
   name: string;
@@ -8,7 +8,7 @@ export interface ProductDetails {
 }
 
 export class ProductCard {
-  private readonly container: Locator;
+  //private readonly container: Locator;
 
   // Child locators — relative to this card's container
   private readonly nameLocator: Locator;
@@ -18,7 +18,7 @@ export class ProductCard {
   private readonly removeButton: Locator;
 
   constructor(container: Locator) {
-    this.container = container;
+    // this.container = container;
 
     // All locators are RELATIVE to this card — not the whole page
     // This is what makes components powerful

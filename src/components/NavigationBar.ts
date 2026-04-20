@@ -10,7 +10,7 @@ export class NavigationBar {
   private readonly hamburgerMenu: Locator;
   private readonly logoutLink: Locator;
   private readonly allItemsLink: Locator;
-  private readonly aboutLink: Locator;
+  // private readonly aboutLink: Locator;
 
   constructor(page: Page) {
     this.page = page;
@@ -19,7 +19,7 @@ export class NavigationBar {
     this.hamburgerMenu = page.locator('#react-burger-menu-btn');
     this.logoutLink = page.locator('#logout_sidebar_link');
     this.allItemsLink = page.locator('#inventory_sidebar_link');
-    this.aboutLink = page.locator('#about_sidebar_link');
+    //this.aboutLink = page.locator('#about_sidebar_link');
   }
 
   async clickCart(): Promise<void> {

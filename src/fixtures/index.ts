@@ -1,4 +1,4 @@
-import { test as base, Page } from '@playwright/test';
+import { test as base } from '@playwright/test';
 import { LoginPage } from '@pages/login/LoginPage';
 import { PageFactory } from './PageFactory';
 import { InventoryPage } from '@pages/inventory/InventoryPage';
@@ -42,8 +42,10 @@ export const test = base.extend<CustomFixtures>({
 
   // ─── InventoryPage fixture ───────────────────────────────────
   inventoryPage: async ({ page }, use) => {
+    TestLogger.step('Fixture: creating inventoryPage');
     const inventoryPage = new InventoryPage(page);
     await use(inventoryPage);
+    TestLogger.step('Fixture: inventoryPage teardown');
   },
 
   // ─── Authenticated fixture ───────────────────────────────────
