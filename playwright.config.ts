@@ -7,27 +7,21 @@ dotenv.config({ path: path.resolve(__dirname, '.env') });
 export default defineConfig({
   // Test Directory
   testDir: './tests',
-
   // Run test in paralel
   fullyParallel: true,
-
   // Fail the build on CI if test.only is accidentally commited
   forbidOnly: !!process.env.CI,
-
   // Retry Failled tests
   retries: process.env.CI ? 2 : 0,
-
-  // Global timeout per test
-  timeout: 30_000,
-
-  // Expect timeout for assertions
-  expect: {
-    timeout: 10_000,
-  },
-
   // Number of parallel workers
   workers: process.env.CI ? 1 : undefined,
-
+  // Global timeout per test
+  timeout: 30_000,
+  // Expect timeout for assertions
+  expect: { timeout: 10_000 },
+  // Global setup and teardown
+  globalSetup: './src/fixtures/globalSetup.ts',
+  globalTeardown: './src/fixtures/globalTeardown.ts',
   // Reporter configuration
   reporter: [
     ['html', { outputFolder: 'playwright-report', open: 'never' }],
@@ -40,28 +34,20 @@ export default defineConfig({
   use: {
     // Base URL for all test
     baseURL: process.env['BASE_URL'] ?? 'https://www.saucedemo.com',
-
     // Browser options
     headless: process.env['HEADLESS'] != 'false',
-
     // Screenshot on failure
     screenshot: 'only-on-failure',
-
     // Video on failure
     video: 'retain-on-failure',
-
     // Trace on retry
     trace: 'on-first-retry',
-
     // Viewport
     viewport: { width: 1920, height: 1080 },
-
     // Action timweout
     actionTimeout: 15_000,
-
     // Navigation timeout
     navigationTimeout: 30_000,
-
     // Ignore Https Error
     ignoreHTTPSErrors: true,
   },
@@ -86,6 +72,7 @@ export default defineConfig({
     {
       name: 'mobile-chrome',
       use: { ...devices['Pixel 5'] },
+      testMatch: '**/mobile/**',
     },
     // API tests - no browser needed
     {
