@@ -4,6 +4,9 @@ import { INavigable, IListable } from '../base/interfaces';
 import { TestLogger } from '../../utils/Logger';
 import { NavigationBar } from '@components/NavigationBar';
 import { ProductCard } from '@components/ProductCard';
+import { DropdownComponent } from '@components/DropdownComponent';
+import { Routes, SauceDemo, Selectors } from '@config/Constants';
+import { Locators } from '@utils/LocatorStrategies';
 
 export interface ProductInfo {
   name: string;
@@ -12,19 +15,24 @@ export interface ProductInfo {
 }
 
 export class InventoryPage extends BasePage implements INavigable, IListable {
-  // ─── Locators ───────────────────────────────────────────────
+  // ─── Components ──────────────────────────────────────────────
   readonly nav: NavigationBar;
+  readonly sortDropdown: DropdownComponent;
+  // ─── Locators ────────────────────────────────────────────────
   private readonly pageTitle: Locator;
   private readonly inventoryItems: Locator;
-  private readonly sortDropdown: Locator;
 
   constructor(page: Page) {
     super(page);
-    this.nav = new NavigationBar(page);
 
-    this.pageTitle = page.locator('.title');
-    this.inventoryItems = page.locator('.inventory_item');
-    this.sortDropdown = page.locator('[data-test="product-sort-container"]');
+    this.nav = new NavigationBar(page);
+    this.sortDropdown = new DropdownComponent(
+      page.locator(Selectors.INVENTORY.SORT_DROPDOWN),
+      'Sort Dropdown',
+    );
+
+    this.pageTitle = page.locator(Selectors.INVENTORY.TITLE);
+    this.inventoryItems = page.locator(Selectors.INVENTORY.ITEMS);
   }
 
   // ─── IPageLoadable ───────────────────────────────────────────
@@ -37,7 +45,7 @@ export class InventoryPage extends BasePage implements INavigable, IListable {
 
   async navigate(): Promise<void> {
     TestLogger.step('Navigating to Inventory page');
-    await this.navigateTo('/inventory.html');
+    await this.navigateTo(Routes.INVENTORY);
     await this.waitForLoad();
   }
 
@@ -48,6 +56,8 @@ export class InventoryPage extends BasePage implements INavigable, IListable {
   // ─── IListable ───────────────────────────────────────────────
 
   async getItemCount(): Promise<number> {
+    await this.waitForCount(this.inventoryItems, SauceDemo.PRODUCTS.TOTAL_COUNT);
+
     return this.inventoryItems.count();
   }
 
@@ -63,40 +73,44 @@ export class InventoryPage extends BasePage implements INavigable, IListable {
     }
   }
 
-  // ─── InventoryPage-specific methods ─────────────────────────
+  // ─── Component-based methods ─────────────────────────────────
+  async getAllProductCards(): Promise<ProductCard[]> {
+    const count = await this.inventoryItems.count();
+    return Array.from({ length: count }, (_, i) => new ProductCard(this.inventoryItems.nth(i)));
+  }
+
+  async getProductCardByName(name: string): Promise<ProductCard | undefined> {
+    // Custom locator strategy — filter by text
+    const filtered = Locators.withText(this.inventoryItems, name);
+    const count = await filtered.count();
+
+    if (count === 0) return undefined;
+    return new ProductCard(filtered.first());
+  }
 
   async getPageTitle(): Promise<string> {
     return this.getText(this.pageTitle);
   }
 
-  async sortProducts(option: 'az' | 'za' | 'lohi' | 'hilo'): Promise<void> {
-    TestLogger.step(`Sorting products by: ${option}`);
-    await this.sortDropdown.selectOption(option);
-  }
-
-  async getAllProductCards(): Promise<ProductCard[]> {
-    const count = await this.inventoryItems.count();
-    let cards: ProductCard[] = [];
-
-    for (let i = 0; i < count; i++) {
-      cards = [...cards, new ProductCard(this.inventoryItems.nth(i))];
-    }
-
-    return cards;
-  }
-
-  async getProductCardByName(name: string): Promise<ProductCard | undefined> {
-    const cards = await this.getAllProductCards();
-    for (const card of cards) {
-      const cardName = await card.getName();
-      if (name === cardName) return card;
-    }
-
-    return undefined;
-  }
-
   async getPrices(): Promise<number[]> {
     const cards = await this.getAllProductCards();
     return Promise.all(cards.map((c) => c.getPrice()));
+  }
+
+  // ─── Sort using DropdownComponent ────────────────────────────
+  async sortByPriceLowToHigh(): Promise<void> {
+    await this.sortDropdown.selectByValue(SauceDemo.SORT_OPTIONS.LOW_HIGH);
+  }
+
+  async sortByPriceHighToLow(): Promise<void> {
+    await this.sortDropdown.selectByValue(SauceDemo.SORT_OPTIONS.HIGH_LOW);
+  }
+
+  async sortByNameAZ(): Promise<void> {
+    await this.sortDropdown.selectByValue(SauceDemo.SORT_OPTIONS.AZ);
+  }
+
+  async sortByNameZA(): Promise<void> {
+    await this.sortDropdown.selectByValue(SauceDemo.SORT_OPTIONS.ZA);
   }
 }

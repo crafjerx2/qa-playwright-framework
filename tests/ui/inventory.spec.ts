@@ -38,7 +38,7 @@ test.describe('Inventory Page — Design Patterns in action', () => {
   });
 
   test('@regression Products sort by price low to high', async ({ authenticatedInventoryPage }) => {
-    await authenticatedInventoryPage.sortProducts('lohi');
+    await authenticatedInventoryPage.sortByPriceLowToHigh();
 
     const prices = await authenticatedInventoryPage.getPrices();
 
