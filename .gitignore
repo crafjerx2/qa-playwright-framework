@@ -11,10 +11,20 @@ playwright-report/
 allure-results/
 allure-report/
 
-# Environment files
+# Environment files with secrets
 .env
-.env.local
-.env.*.local
+.env.dev
+.env.qa
+.env.staging
+.env.prod
+
+# Keep example
+!.env.example
+
+# Auth state
+.auth/
+
+
 
 # OS files
 .DS_Store

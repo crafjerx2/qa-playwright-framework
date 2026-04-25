@@ -46,13 +46,13 @@ export const Logger = winston.createLogger({
 // Convenience methods that add context
 export const TestLogger = {
   testStart: (testName: string): void => {
-    Logger.info(`TEST STARTED: ${testName}`);
+    Logger.info(`\n\nTEST STARTED: ${testName}`);
   },
   testPass: (testName: string): void => {
-    Logger.info(`TEST PASSED: ${testName}`);
+    Logger.info(`TEST PASSED: ${testName}\n`);
   },
   testFail: (testName: string, reason: string): void => {
-    Logger.error(`TEST FAILED: ${testName} | Reason: ${reason}`);
+    Logger.error(`TEST FAILED: ${testName} | Reason: ${reason}\n`);
   },
   step: (description: string): void => {
     Logger.info(`  -> STEP: ${description}`);
@@ -63,7 +63,10 @@ export const TestLogger = {
   apiResponse: (status: number, url: string): void => {
     Logger.debug(` <- ${status} ${url}`);
   },
-  infor: (description: string): void => {
+  info: (description: string): void => {
     Logger.info(`  -> INFO: ${description}`);
+  },
+  config: (description: string): void => {
+    Logger.info(`[Config]: ${description}`);
   },
 };

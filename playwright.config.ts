@@ -1,53 +1,56 @@
-import { defineConfig, devices } from '@playwright/test';
-import * as dotenv from 'dotenv';
-import * as path from 'path';
+/**
+ * @fileoverview Playwright configuration driven by ConfigManager.
+ *
+ * All values come from environment variables via ConfigManager.
+ * No hardcoded values — fully driven by .env files.
+ */
 
-dotenv.config({ path: path.resolve(__dirname, '.env') });
+import { defineConfig, devices } from '@playwright/test';
+import { loadEnvironment } from '@config/EnvLoader';
+import { EnvironmentConfig } from '@config/EnvironmentConfig';
+
+// Load environment FIRST — before anything else reads process.env
+loadEnvironment();
+const config = EnvironmentConfig.load();
 
 export default defineConfig({
   // Test Directory
   testDir: './tests',
   // Run test in paralel
-  fullyParallel: true,
+  fullyParallel: config.workers.fullyParallel,
+  workers: config.workers.count,
   // Fail the build on CI if test.only is accidentally commited
-  forbidOnly: !!process.env.CI,
+  forbidOnly: !!process.env['CI'],
   // Retry Failled tests
-  retries: process.env.CI ? 2 : 0,
-  // Number of parallel workers
-  workers: process.env.CI ? 1 : undefined,
+  retries: config.retry.count,
   // Global timeout per test
-  timeout: 30_000,
+  timeout: config.browser.timeouts.global,
   // Expect timeout for assertions
-  expect: { timeout: 10_000 },
+  expect: { timeout: config.browser.timeouts.expect },
   // Global setup and teardown
   globalSetup: './src/fixtures/globalSetup.ts',
   globalTeardown: './src/fixtures/globalTeardown.ts',
   // Reporter configuration
-  reporter: [
-    ['html', { outputFolder: 'playwright-report', open: 'never' }],
-    ['list'],
-    ['allure-playwright', { outputFolder: 'allure-results' }],
-    ['json', { outputFolder: 'test-results/result.json' }],
-  ],
+  reporter: [['list', { printSteps: true }]],
 
   // Global test configuration
   use: {
     // Base URL for all test
-    baseURL: process.env['BASE_URL'] ?? 'https://www.saucedemo.com',
+    baseURL: config.application.apiBaseUrl,
     // Browser options
-    headless: process.env['HEADLESS'] != 'false',
-    // Screenshot on failure
-    screenshot: 'only-on-failure',
-    // Video on failure
-    video: 'retain-on-failure',
-    // Trace on retry
-    trace: 'on-first-retry',
-    // Viewport
-    viewport: { width: 1920, height: 1080 },
+    headless: config.browser.headless,
+    // Viewpor
+    viewport: config.browser.viewport,
     // Action timweout
-    actionTimeout: 15_000,
+    actionTimeout: config.browser.timeouts.action,
     // Navigation timeout
-    navigationTimeout: 30_000,
+    navigationTimeout: config.browser.timeouts.navigation,
+    // Screenshot on failure
+    screenshot: config.reporting.screenshotMode,
+    // Video on failure
+    video: config.reporting.videoMode,
+    // Trace on retry
+    trace: config.reporting.traceMode,
     // Ignore Https Error
     ignoreHTTPSErrors: true,
   },
@@ -56,17 +59,23 @@ export default defineConfig({
   projects: [
     {
       name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
+      use: {
+        ...devices['Desktop Chrome'],
+        channel: config.browser.useRealChrome ? 'chrome' : undefined,
+      },
+      testMatch: ['**/ui/**', '**/e2e/**'],
     },
 
     {
       name: 'firefox',
       use: { ...devices['Desktop Firefox'] },
+      testMatch: ['**/ui/**'],
     },
 
     {
       name: 'webkit',
       use: { ...devices['Desktop Safari'] },
+      testMatch: ['**/ui/**'],
     },
     // Mobile testing
     {
@@ -74,12 +83,22 @@ export default defineConfig({
       use: { ...devices['Pixel 5'] },
       testMatch: '**/mobile/**',
     },
+    {
+      name: 'mobile-safari',
+      use: { ...devices['iPhone 13'] },
+      testMatch: ['**/mobile/**'],
+    },
+
     // API tests - no browser needed
     {
       name: 'api',
       testDir: './tests/api',
       use: {
-        baseURL: process.env['API_BASE_URL'] ?? 'https://reqres.in/api',
+        baseURL: config.application.apiBaseUrl,
+        extraHTTPHeaders: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
       },
     },
   ],

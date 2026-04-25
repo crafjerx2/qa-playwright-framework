@@ -70,7 +70,6 @@ export class LoginPage extends BasePage implements INavigable, IAuthenticatable,
    * await loginPage.navigate();
    */
   async navigate(): Promise<void> {
-    TestLogger.step('Navigating to Login page');
     await this.navigateTo(Routes.HOME);
     await this.waitForLoad();
   }
@@ -85,7 +84,6 @@ export class LoginPage extends BasePage implements INavigable, IAuthenticatable,
    * await loginPage.login('standard_user', 'secret_sauce');
    */
   async login(username: string, password: string): Promise<void> {
-    TestLogger.step(`Logging in as: ${username}`);
     await this.fillField(Selectors.LOGIN.USERNAME, username);
     await this.fillField(Selectors.LOGIN.PASSWORD, password);
     await this.submitForm();
@@ -96,7 +94,6 @@ export class LoginPage extends BasePage implements INavigable, IAuthenticatable,
    * Note: Full logout is handled by NavigationBar component.
    */
   async logout(): Promise<void> {
-    TestLogger.step('Logout called on LoginPage — navigating to home');
     await this.navigateTo('/');
   }
   /**
@@ -128,7 +125,6 @@ export class LoginPage extends BasePage implements INavigable, IAuthenticatable,
    * Submits the login form by clicking the login button.
    */
   async submitForm(): Promise<void> {
-    TestLogger.step('Clicking login button');
     await this.clickElement(this.loginButton);
   }
 

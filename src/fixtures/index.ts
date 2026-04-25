@@ -95,7 +95,7 @@ export const test = base.extend<AllFixtures>({
    */
   isolatedContext: async ({ browser, browserType, deviceProfile }, use) => {
     const testInfo = test.info();
-    TestLogger.step(`Creating isolated context for: ${testInfo.title}`);
+    TestLogger.config(`Creating isolated context for: ${testInfo.title}`);
 
     const context = await BrowserManager.createContext(browser, browserType, deviceProfile);
 
@@ -115,10 +115,10 @@ export const test = base.extend<AllFixtures>({
     let context: BrowserContext;
 
     if (authStateExists) {
-      TestLogger.step('Using saved auth state');
+      // TestLogger.config('Using saved auth state');
       context = await BrowserManager.createAuthenticatedContext(browser, AUTH_STATE_PATH);
     } else {
-      TestLogger.step('Auth state not found — creating fresh context');
+      //TestLogger.config('Auth state not found — creating fresh context');
       context = await BrowserManager.createContext(browser);
     }
 
@@ -146,11 +146,11 @@ export const test = base.extend<AllFixtures>({
    * Uses the default Playwright 'page' fixture (isolated per test).
    */
   loginPage: async ({ page }, use) => {
-    TestLogger.step('Fixture: setting up LoginPage');
+    TestLogger.config('Fixture: setting up LoginPage');
     const loginPage = new LoginPage(page);
     await loginPage.navigate();
     await use(loginPage);
-    TestLogger.step('Fixture: LoginPage teardown');
+    TestLogger.config('Fixture: LoginPage teardown');
   },
 
   /**
@@ -167,8 +167,6 @@ export const test = base.extend<AllFixtures>({
    * Falls back to full login if auth state doesn't exist.
    */
   authenticatedInventoryPage: async ({ authenticatedContext }, use) => {
-    TestLogger.step('Fixture: setting up authenticated InventoryPage');
-
     const page = await BrowserManager.createPage(authenticatedContext);
     const factory = new PageFactory(page);
 
@@ -182,10 +180,10 @@ export const test = base.extend<AllFixtures>({
 
       if (loaded) {
         inventoryPage = inventory;
-        TestLogger.step('Fixture: using saved auth state successfully');
+        //TestLogger.config('Fixture: using saved auth state successfully');
       } else {
         // Fall back to full login
-        TestLogger.step('Fixture: auth state invalid — performing full login');
+        //TestLogger.config('Fixture: auth state invalid — performing full login');
         inventoryPage = await factory.createAuthenticatedInventoryPage(
           Config.testUsername,
           Config.testPassword,
@@ -200,7 +198,7 @@ export const test = base.extend<AllFixtures>({
     }
 
     await use(inventoryPage);
-    TestLogger.step('Fixture: authenticated InventoryPage teardown');
+    //TestLogger.config('Fixture: authenticated InventoryPage teardown');
   },
 
   // ─── Test data fixtures ──────────────────────────────────────

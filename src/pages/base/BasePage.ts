@@ -84,7 +84,6 @@ export abstract class BasePage implements IBasePage, IPageLoadable {
         `${this.constructor.name} failed to load. URL: ${await this.getCurrentUrl()}`,
       );
     }
-    TestLogger.step(`${this.constructor.name} loaded successfully`);
   }
 
   /**
@@ -140,7 +139,6 @@ export abstract class BasePage implements IBasePage, IPageLoadable {
    */
   protected async navigateTo(path: string = ''): Promise<void> {
     const url = path.startsWith('http') ? path : `${this.baseUrl}${path}`;
-    TestLogger.step(`Navigating to: ${url}`);
     await this.page.goto(url);
     await this.page.waitForLoadState('domcontentloaded');
   }

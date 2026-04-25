@@ -1,14 +1,27 @@
 import { test, expect } from '@fixtures/index';
+import { TestLogger } from '@utils/Logger';
 
 test.describe('Inventory Page — Design Patterns in action', () => {
-  test('@smoke Inventory page loads with 6 products', async ({ authenticatedInventoryPage }) => {
+  const testName1 = '@smoke Inventory page loads with 6 products';
+
+  test(testName1, async ({ authenticatedInventoryPage }) => {
+    TestLogger.testStart(testName1);
+
+    TestLogger.step('Gettiing  the page is loaded.');
     const isLoaded = await authenticatedInventoryPage.isLoaded();
+    TestLogger.step('Getting the item count.');
     const count = await authenticatedInventoryPage.getItemCount();
+    TestLogger.step('Getting the page tittle.');
     const title = await authenticatedInventoryPage.getPageTitle();
 
+    TestLogger.step('Checking  the page is loaded.');
     expect(isLoaded).toBe(true);
+    TestLogger.step('Checking the page has 6 elements.');
     expect(count).toBe(6);
+    TestLogger.step('Checking the page title is Products');
     expect(title).toBe('Products');
+
+    TestLogger.testPass(testName1);
   });
   test('@smoke Product cards have valid data', async ({ authenticatedInventoryPage }) => {
     // POM + Component Pattern: we get typed ProductCard objects

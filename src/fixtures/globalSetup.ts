@@ -14,15 +14,21 @@
  * ## Auth State Flow:
  * globalSetup → login → saveAuthState → tests use saved state
  */
-import { TestLogger } from '@utils/Logger';
 import { BrowserManager } from './BrowserManager';
 import { LoginPage } from '@pages/login/LoginPage';
 import { Config } from '@config/ConfigManager';
+import { ConfigValidator } from '@config/ConfigValidator';
 
 export const AUTH_STATE_PATH = '.auth/user.json';
 
 async function globalSetup(): Promise<void> {
-  TestLogger.step('=== Global Setup Started ===');
+  // Validate config FIRST — fail fast if misconfigured
+  ConfigValidator.validate(Config.settings);
+
+  // Print config summary for CI logs
+  if (Config.isCI) {
+    Config.printConfig();
+  }
 
   const browser = await BrowserManager.launchBrowser('chromium');
   const context = await BrowserManager.createContext(browser);
@@ -43,14 +49,14 @@ async function globalSetup(): Promise<void> {
     // Save auth state for reuse across tests
     await BrowserManager.saveAuthState(context, AUTH_STATE_PATH);
 
-    TestLogger.step('Global setup: auth state saved successfully');
+    // TestLogger.config('Global setup: auth state saved successfully');
   } catch (error) {
-    TestLogger.step(`Global setup FAILED: ${String(error)}`);
+    //TestLogger.config(`Global setup FAILED: ${String(error)}`);
     throw error;
   } finally {
     await BrowserManager.closeContext(context);
     await BrowserManager.closeBrowser(browser);
-    TestLogger.step('=== Global Setup Complete ===');
+    //TestLogger.config('=== Global Setup Complete ===');
   }
 }
 

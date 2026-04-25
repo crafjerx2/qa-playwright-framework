@@ -5,24 +5,42 @@
   "main": "index.js",
   "scripts": {
     "test": "playwright test",
+    "test:dev": "ENV=dev playwright test",
+    "test:qa": "ENV=qa playwright test",
+    "test:staging": "ENV=staging playwright test",
+    "test:prod": "ENV=prod playwright test --grep @smoke",
+
     "test:ui": "playwright test tests/ui",
     "test:api": "playwright test tests/api --project=api",
     "test:e2e": "playwright test tests/e2e",
+
     "test:chrome": "playwright test --project=chromium",
     "test:firefox": "playwright test --project=firefox",
     "test:webkit": "playwright test --project=webkit",
-    "test:mobile": "playwright test --project=mobile-chrome",
-    "test:headed": "playwright test --headed",
-    "test:debug": "playwright test --debug",
+    "test:all-browsers": "playwright test --project=chromium --project=firefox --project=webkit",
+
+    "test:headed": "HEADLESS=false playwright test",
+    "test:debug": "HEADLESS=false SLOW_MO=500 playwright test --debug",
     "test:smoke": "playwright test --grep @smoke",
     "test:regression": "playwright test --grep @regression",
+
+    "test:ci": "CI=true ENV=qa playwright test",
+    "test:ci:staging": "CI=true ENV=staging playwright test",
+
     "report:html": "playwright show-report",
     "report:allure": "allure generate allure-results --clean && allure open",
+
     "lint": "eslint . --ext .ts",
     "lint:fix": "eslint . --ext .ts --fix",
     "format": "prettier --write \"**/*.ts\"",
     "format:check": "prettier --check \"**/*.ts\"",
-    "clean": "rm -rf test-results playwright-report allure-results allure-report dist"
+    "type:check": "tsc --noEmit",
+
+    "clean": "rm -rf test-results playwright-report allure-results allure-report dist logs .auth",
+    "clean:logs": "rm -rf logs",
+    "clean:reports": "rm -rf playwright-report allure-results allure-report"
+
+
   },
   "keywords": [],
   "author": "Carlos Pineda",

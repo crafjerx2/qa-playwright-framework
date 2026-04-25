@@ -2,6 +2,7 @@ import { TestLogger } from '@utils/Logger';
 import { EnvironmentConfig, FrameworkConfig } from './EnvironmentConfig';
 import * as dotenv from 'dotenv';
 import * as path from 'path';
+import { Environment, loadEnvironment, LoadResult } from './EnvLoader';
 
 // Load .env file once at module level
 dotenv.config({ path: path.resolve(process.cwd(), '.env') });
@@ -9,11 +10,20 @@ dotenv.config({ path: path.resolve(process.cwd(), '.env') });
 class ConfigManager {
   private static instance: ConfigManager | null = null;
   private readonly _config: FrameworkConfig;
+  private readonly _loadResult: LoadResult;
   private readonly _initializedAt: Date;
 
   private constructor() {
     this._config = EnvironmentConfig.load();
+    this._loadResult = loadEnvironment();
     this._initializedAt = new Date();
+
+    // Log warnings in debug mode
+    if (this._loadResult.warnings.length > 0) {
+      this._loadResult.warnings.forEach((w) => {
+        console.warn(`[Config] Warning: ${w}`);
+      });
+    }
   }
 
   static getInstance(): ConfigManager {
@@ -31,10 +41,12 @@ class ConfigManager {
     ConfigManager.instance = null;
   }
 
+  // ─── Full config access ──────────────────────────────────────
   get settings(): FrameworkConfig {
     return this._config;
   }
 
+  // ─── Application shortcuts ────────────────────────────────────
   get baseUrl(): string {
     return this._config.application.baseUrl;
   }
@@ -47,37 +59,141 @@ class ConfigManager {
     return this._config.application.environment;
   }
 
-  get browserType(): string {
-    return this._config.browser.type;
+  get appName(): string {
+    return this._config.application.appName;
+  }
+
+  // ─── Browser shortcuts ────────────────────────────────────────
+  get browser() {
+    return this._config.browser;
+  }
+
+  get browserEngine(): string {
+    return this._config.browser.engine;
   }
 
   get isHeadless(): boolean {
     return this._config.browser.headless;
   }
 
+  get slowMo(): number {
+    return this._config.browser.slowMo;
+  }
+
+  // ─── Timeout shortcuts ────────────────────────────────────────
+
+  get timeouts() {
+    return this._config.browser.timeouts;
+  }
+
+  get actionTimeout(): number {
+    return this._config.browser.timeouts.action;
+  }
+
+  get navigationTimeout(): number {
+    return this._config.browser.timeouts.navigation;
+  }
+
+  // ─── Test data shortcuts ──────────────────────────────────────
+  get testData() {
+    return this._config.testData;
+  }
+
   get testUsername(): string {
-    return this._config.testData.username;
+    return this._config.testData.credentials.username;
   }
 
   get testPassword(): string {
-    return this._config.testData.password;
+    return this._config.testData.credentials.password;
+  }
+
+  get testFirstName(): string {
+    return this._config.testData.personalInfo.firstName;
+  }
+
+  get testLastName(): string {
+    return this._config.testData.personalInfo.lastName;
+  }
+
+  get testPostalCode(): string {
+    return this._config.testData.personalInfo.postalCode;
+  }
+
+  // ─── Reporting shortcuts ──────────────────────────────────────
+
+  get reporting() {
+    return this._config.reporting;
+  }
+
+  // ─── Retry shortcuts ──────────────────────────────────────────
+
+  get retryCount(): number {
+    return this._config.retry.count;
+  }
+
+  // ─── Worker shortcuts ─────────────────────────────────────────
+
+  get workerCount(): number | undefined {
+    return this._config.workers.count;
+  }
+
+  // ─── Environment helpers ──────────────────────────────────────
+  /**
+   * Checks if running in CI environment.
+   */
+  get isCI(): boolean {
+    return !!process.env['CI'];
+  }
+
+  /**
+   * Checks if running in a specific environment.
+   *
+   * @param env - Environment to check
+   *
+   * @example
+   * if (Config.isEnvironment('prod')) {
+   *   test.skip(); // skip destructive tests in production
+   * }
+   */
+  isEnvironment(env: Environment): boolean {
+    return this._config.application.environment === env;
+  }
+
+  /**
+   * Checks if running in a non-production environment.
+   */
+  get isSafeEnvironment(): boolean {
+    return this._config.application.environment !== 'prod';
+  }
+
+  // ─── Debug utilities ─────────────────────────────────────────
+
+  /**
+   * Prints full configuration to console.
+   * Masks sensitive values like passwords.
+   */
+  printConfig(): void {
+    const masked = { ...this._config };
+    TestLogger.config('\n\n\t=== Framework Configuration ===\n');
+    TestLogger.config(`Loaded files: ${this._loadResult.loadedFiles.join(', ')}`);
+    TestLogger.config(`Environment: ${this.environment}`);
+    TestLogger.config(`Base URL: ${this.baseUrl}`);
+    TestLogger.config(`API URL: ${this.apiBaseUrl}`);
+    TestLogger.config(`Browser: ${this.browserEngine}`);
+    TestLogger.config(`Headless: ${this.isHeadless}`);
+    TestLogger.config(`Workers: ${this.workerCount ?? 'auto'}`);
+    TestLogger.config(`Retries: ${this.retryCount}`);
+    TestLogger.config(`CI: ${this.isCI}`);
+    TestLogger.config(`Initialized: ${this._initializedAt.toISOString()} \n`);
+    void masked;
+  }
+
+  get loadResult(): LoadResult {
+    return this._loadResult;
   }
 
   get initializedAt(): Date {
     return this._initializedAt;
-  }
-
-  /**
-   * Debug info — useful for CI logs
-   */
-  printConfig(): void {
-    TestLogger.infor('=== Framework Configuration ===');
-    TestLogger.infor(`Environment: ${this.environment}`);
-    TestLogger.infor(`Base URL: ${this.baseUrl}`);
-    TestLogger.infor(`Browser: ${this.browserType}`);
-    TestLogger.infor(`Headless: ${this.isHeadless}`);
-    TestLogger.infor(`Initialized at: ${this._initializedAt.toISOString()}`);
-    TestLogger.infor('================================');
   }
 }
 

@@ -44,7 +44,6 @@ export class InventoryPage extends BasePage implements INavigable, IListable {
   // ─── INavigable ─────────────────────────────────────────────
 
   async navigate(): Promise<void> {
-    TestLogger.step('Navigating to Inventory page');
     await this.navigateTo(Routes.INVENTORY);
     await this.waitForLoad();
   }

@@ -62,7 +62,7 @@ export class BrowserManager {
   static async launchBrowser(browserType: BrowserType = 'chromium'): Promise<Browser> {
     const { launchOptions } = BrowserOptionsFactory.getConfig(browserType);
 
-    TestLogger.step(`Launching browser: ${browserType}`);
+    TestLogger.config(`Launching browser: ${browserType}`);
 
     switch (browserType) {
       case 'chromium':
@@ -111,7 +111,7 @@ export class BrowserManager {
       pageCount: 0,
     });
 
-    TestLogger.step(`Context created: ${contextId} [${browserType}/${device}]`);
+    TestLogger.config(`Context created: ${contextId} [${browserType}/${device}]`);
 
     return context;
   }
@@ -126,7 +126,7 @@ export class BrowserManager {
   static async createApiContext(browser: Browser, token?: string): Promise<BrowserContext> {
     const contextOptions = BrowserOptionsFactory.getApiContextOptions(token);
     const context = await browser.newContext(contextOptions);
-    TestLogger.step('API context created');
+    TestLogger.config('API context created');
     return context;
   }
 
@@ -145,7 +145,7 @@ export class BrowserManager {
     browser: Browser,
     storageStatePath: string,
   ): Promise<BrowserContext> {
-    TestLogger.step(`Creating authenticated context from: ${storageStatePath}`);
+    // TestLogger.config(`Creating authenticated context from: ${storageStatePath}`);
 
     const { contextOptions } = BrowserOptionsFactory.getConfig('chromium');
     return browser.newContext({
@@ -169,8 +169,6 @@ export class BrowserManager {
     // Set default timeouts
     page.setDefaultTimeout(parseInt(process.env['ACTION_TIMEOUT'] ?? '15000'));
     page.setDefaultNavigationTimeout(parseInt(process.env['NAV_TIMEOUT'] ?? '30000'));
-
-    TestLogger.step('New page created');
     return page;
   }
 
@@ -203,7 +201,7 @@ export class BrowserManager {
     }
 
     await context.storageState({ path: filePath });
-    TestLogger.step(`Auth state saved to: ${filePath}`);
+    //TestLogger.config(`Auth state saved to: ${filePath}\n`);
   }
 
   // ─── Cleanup ─────────────────────────────────────────────────
@@ -216,9 +214,9 @@ export class BrowserManager {
   static async closeContext(context: BrowserContext): Promise<void> {
     try {
       await context.close();
-      TestLogger.step('Browser context closed');
+      //TestLogger.config('Browser context closed');
     } catch (error) {
-      TestLogger.step(`Warning: error closing context: ${String(error)}`);
+      TestLogger.config(`Warning: error closing context: ${String(error)}`);
     }
   }
 
@@ -230,9 +228,9 @@ export class BrowserManager {
   static async closeBrowser(browser: Browser): Promise<void> {
     try {
       await browser.close();
-      TestLogger.step('Browser closed');
+      //TestLogger.config('Browser closed');
     } catch (error) {
-      TestLogger.step(`Warning: error closing browser: ${String(error)}`);
+      TestLogger.config(`Warning: error closing browser: ${String(error)}`);
     }
   }
 
