@@ -32,7 +32,6 @@
 import { BasePage } from '@pages/base/BasePage';
 import { IAuthenticatable, IFormInteractable, INavigable } from '@pages/base/interfaces';
 import { Locator, Page } from '@playwright/test';
-import { TestLogger } from '@utils/Logger';
 import { Selectors, Routes } from '@config/Constants';
 
 export class LoginPage extends BasePage implements INavigable, IAuthenticatable, IFormInteractable {

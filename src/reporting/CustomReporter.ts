@@ -58,7 +58,7 @@ export default class CustomReporter implements Reporter {
     const browserName = process.env['BROWSER'] ?? 'chromium';
 
     console.log('\n' + c('bold', '╔════════════════════════════════════╗'));
-    console.log(c('bold', '║   QA Playwright Framework - Tests   ║'));
+    console.log(c('bold', '║   QA Playwright Framework - Tests  ║'));
     console.log(c('bold', '╚════════════════════════════════════╝'));
     console.log(c('dim', `Environment: ${environment}`));
     console.log(c('dim', `Browser:     ${browserName}`));
@@ -80,8 +80,8 @@ export default class CustomReporter implements Reporter {
     console.log(c('bold', '─'.repeat(40)));
     console.log(`${c('green', 'Passed')}:  ${this.passCount}`);
     console.log(`${c('red', 'Failed')}:  ${this.failCount}`);
-    console.log(`${c('yellow', '-> Skipped')}: ${this.skipCount}`);
-    console.log(`Total:    ${total}`);
+    console.log(`${c('yellow', 'Skipped')}: ${this.skipCount}`);
+    console.log(`\nTotal:    ${total}`);
     console.log(
       `Pass rate: ${passRate >= 80 ? c('green', `${passRate}%`) : c('red', `${passRate}%`)}`,
     );

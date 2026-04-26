@@ -1,0 +1,44 @@
+{
+  "validCheckout": [
+    {
+      "id": "checkout-001",
+      "firstName": "Carlos",
+      "lastName": "Pineda",
+      "postalCode": "1010",
+      "description": "Valid NZ checkout"
+    },
+    {
+      "id": "checkout-002",
+      "firstName": "Jane",
+      "lastName": "Doe",
+      "postalCode": "90210",
+      "description": "Valid US checkout"
+    }
+  ],
+  "invalidCheckout": [
+    {
+      "id": "invalid-001",
+      "firstName": "",
+      "lastName": "Pineda",
+      "postalCode": "1010",
+      "description": "Missing first name",
+      "expectedError": "First Name is required"
+    },
+    {
+      "id": "invalid-002",
+      "firstName": "Carlos",
+      "lastName": "",
+      "postalCode": "1010",
+      "description": "Missing last name",
+      "expectedError": "Last Name is required"
+    },
+    {
+      "id": "invalid-003",
+      "firstName": "Carlos",
+      "lastName": "Pineda",
+      "postalCode": "",
+      "description": "Missing postal code",
+      "expectedError": "Postal Code is required"
+    }
+  ]
+}

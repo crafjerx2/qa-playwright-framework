@@ -1,0 +1,80 @@
+{
+  "validUsers": [
+    {
+      "id": "user-001",
+      "username": "standard_user",
+      "password": "secret_sauce",
+      "role": "standard",
+      "description": "Standard user with full access",
+      "expectedResult": "success",
+      "expectedUrl": "inventory"
+    },
+    {
+      "id": "user-002",
+      "username": "problem_user",
+      "password": "secret_sauce",
+      "role": "problem",
+      "description": "Problem user with broken images",
+      "expectedResult": "success",
+      "expectedUrl": "inventory"
+    },
+    {
+      "id": "user-003",
+      "username": "performance_glitch_user",
+      "password": "secret_sauce",
+      "role": "performance",
+      "description": "User with performance issues",
+      "expectedResult": "success",
+      "expectedUrl": "inventory"
+    }
+  ],
+  "invalidUsers": [
+    {
+      "id": "invalid-001",
+      "username": "locked_out_user",
+      "password": "secret_sauce",
+      "role": "locked",
+      "description": "Locked out user cannot login",
+      "expectedResult": "error",
+      "expectedError": "locked out"
+    },
+    {
+      "id": "invalid-002",
+      "username": "",
+      "password": "secret_sauce",
+      "role": "empty_username",
+      "description": "Empty username should show error",
+      "expectedResult": "error",
+      "expectedError": "Username is required"
+    },
+    {
+      "id": "invalid-003",
+      "username": "standard_user",
+      "password": "",
+      "role": "empty_password",
+      "description": "Empty password should show error",
+      "expectedResult": "error",
+      "expectedError": "Password is required"
+    },
+    {
+      "id": "invalid-004",
+      "username": "wrong_user",
+      "password": "wrong_password",
+      "role": "wrong_credentials",
+      "description": "Wrong credentials should show error",
+      "expectedResult": "error",
+      "expectedError": "Username and password do not match"
+    }
+  ],
+  "checkoutUsers": [
+    {
+      "id": "checkout-001",
+      "username": "standard_user",
+      "password": "secret_sauce",
+      "firstName": "Carlos",
+      "lastName": "Pineda",
+      "postalCode": "1010",
+      "description": "Valid checkout user"
+    }
+  ]
+}

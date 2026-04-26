@@ -32,26 +32,22 @@ export interface TableRow {
 }
 
 export class TableComponent {
-  private readonly tableLocator: Locator;
   private readonly name: string;
 
   // Child locators — relative to the table
   private readonly headers: Locator;
   private readonly rows: Locator;
-  private readonly cells: Locator;
 
   /**
    * @param tableLocator - The <table> element locator
    * @param name - Human-readable name for logging
    */
   constructor(tableLocator: Locator, name: string = 'Table') {
-    this.tableLocator = tableLocator;
     this.name = name;
 
     // All locators relative to the table
     this.headers = tableLocator.locator('thead th');
     this.rows = tableLocator.locator('tbody tr');
-    this.cells = tableLocator.locator('tbody tr td');
   }
 
   // ─── Header methods ──────────────────────────────────────────

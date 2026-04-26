@@ -1,4 +1,4 @@
-import { Selectors, Timeouts } from '@config/Constants';
+import { Timeouts } from '@config/Constants';
 import { Page, Locator } from '@playwright/test';
 import { TestLogger } from '@utils/Logger';
 

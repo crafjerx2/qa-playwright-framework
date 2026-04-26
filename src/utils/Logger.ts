@@ -94,7 +94,7 @@ export const TestLogger = {
    * Logs the start of a test session.
    */
   sessionStart(environment: string, browser: string): void {
-    winstonLogger.info('═══ TEST SESSION STARTED ═══', {
+    winstonLogger.info('═══ TEST SESSION STARTED ═══\n', {
       environment,
       browser,
       timestamp: new Date().toISOString(),
@@ -108,7 +108,7 @@ export const TestLogger = {
     const total = passed + failed + skipped;
     const passRate = total > 0 ? Math.round((passed / total) * 100) : 0;
 
-    winstonLogger.info('═══ TEST SESSION ENDED ═══', {
+    winstonLogger.info('═══ TEST SESSION ENDED ═══\n', {
       total,
       passed,
       failed,
@@ -121,7 +121,7 @@ export const TestLogger = {
    * @param testName - Full test name including describe block
    */
   testStart(testName: string): void {
-    winstonLogger.info(`STARTED: ${testName}`, { event: 'test_start' });
+    winstonLogger.info(`STARTED: ${testName} `, { event: 'test_start' });
   },
 
   /**
@@ -130,7 +130,7 @@ export const TestLogger = {
    * @param durationMs - Test duration in milliseconds
    */
   testPass(testName: string, durationMs?: number): void {
-    winstonLogger.info(`PASSED: ${testName}`, {
+    winstonLogger.info(`PASSED: ${testName} `, {
       event: 'test_pass',
       duration: durationMs ? `${durationMs}ms` : undefined,
     });
@@ -144,7 +144,7 @@ export const TestLogger = {
    */
   testFail(testName: string, error: string | Error, screenshotPath?: string): void {
     const message = error instanceof Error ? error.message : error;
-    winstonLogger.error(`FAILED: ${testName}`, {
+    winstonLogger.error(`FAILED: ${testName} `, {
       event: 'test_fail',
       error: message,
       stack: error instanceof Error ? error.stack : undefined,
@@ -156,7 +156,7 @@ export const TestLogger = {
    * Logs a skipped test.
    */
   testSkip(testName: string, reason?: string): void {
-    winstonLogger.warn(`SKIPPED: ${testName}`, {
+    winstonLogger.warn(`SKIPPED: ${testName} `, {
       event: 'test_skip',
       reason,
     });
@@ -166,7 +166,7 @@ export const TestLogger = {
    * Logs a test retry attempt.
    */
   testRetry(testName: string, attempt: number, maxAttempts: number): void {
-    winstonLogger.warn(`RETRY ${attempt}/${maxAttempts}: ${testName}`, {
+    winstonLogger.warn(`RETRY ${attempt}/${maxAttempts}: ${testName} `, {
       event: 'test_retry',
       attempt,
       maxAttempts,
@@ -180,14 +180,14 @@ export const TestLogger = {
    * @param description - What the step is doing
    */
   step(description: string): void {
-    winstonLogger.info(`  -> ${description}`, { event: 'step' });
+    winstonLogger.info(`${description}`, { event: 'step' });
   },
 
   /**
    * Logs a step with additional context data.
    */
   stepWithData(description: string, data: Record<string, unknown>): void {
-    winstonLogger.info(`  -> ${description}`, { event: 'step', ...data });
+    winstonLogger.info(`${description}`, { event: 'step', ...data });
   },
 
   // ─── API logging ─────────────────────────────────────────
@@ -223,7 +223,7 @@ export const TestLogger = {
    * Logs a page navigation.
    */
   navigate(url: string): void {
-    winstonLogger.info(`  Navigate: ${url}`, {
+    winstonLogger.info(`Navigate: ${url}`, {
       event: 'navigate',
       url,
     });
@@ -235,7 +235,7 @@ export const TestLogger = {
    * Logs a screenshot capture.
    */
   screenshot(name: string, filePath: string): void {
-    winstonLogger.info(`  Screenshot: ${name}`, {
+    winstonLogger.info(`Screenshot: ${name}`, {
       event: 'screenshot',
       path: filePath,
     });

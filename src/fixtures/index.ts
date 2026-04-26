@@ -36,6 +36,7 @@ import { AUTH_STATE_PATH } from './globalSetup';
 import * as fs from 'fs';
 import { ScreenshotHelper } from '@utils/ScreenshotHelper';
 import { ReportManager } from '../reporting/ReportManager';
+import { CsvLoginScenario, ProductData, TestData } from '@data/TestDataFactory';
 
 // ─── Fixture type definitions ─────────────────────────────────
 
@@ -72,6 +73,9 @@ interface DataFixtures {
   problemUser: TestUser;
   /** Random invalid user */
   randomUser: TestUser;
+  allProducts: ProductData[];
+  validLoginScenarios: CsvLoginScenario[];
+  fakeCheckoutData: { firstName: string; lastName: string; postalCode: string };
 }
 
 type AllFixtures = BrowserFixtures & PageFixtures & DataFixtures;
@@ -227,6 +231,19 @@ export const test = base.extend<AllFixtures>({
   },
   randomUser: async ({}, use) => {
     await use(UserBuilder.random().build());
+  },
+  allProducts: async ({}, use) => {
+    const products = await TestData.products.all();
+    await use(products);
+  },
+
+  validLoginScenarios: async ({}, use) => {
+    const scenarios = await TestData.csv.successfulLogins();
+    await use(scenarios);
+  },
+
+  fakeCheckoutData: async ({}, use) => {
+    await use(TestData.fake.checkoutInfo());
   },
 });
 

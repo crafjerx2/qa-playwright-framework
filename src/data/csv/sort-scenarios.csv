@@ -1,0 +1,5 @@
+id,sortOption,label,expectedFirst,expectedLast,description
+SORT001,az,Name (A to Z),Sauce Labs Backpack,Test.allTheThings() T-Shirt (Red),Sort alphabetically ascending
+SORT002,za,Name (Z to A),Test.allTheThings() T-Shirt (Red),Sauce Labs Backpack,Sort alphabetically descending
+SORT003,lohi,Price (low to high),Sauce Labs Onesie,Sauce Labs Fleece Jacket,Sort by price ascending
+SORT004,hilo,Price (high to low),Sauce Labs Fleece Jacket,Sauce Labs Onesie,Sort by price descending

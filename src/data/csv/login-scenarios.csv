@@ -1,0 +1,7 @@
+id,username,password,expectedResult,expectedError,description
+TC001,standard_user,secret_sauce,success,,Valid standard user login
+TC002,locked_out_user,secret_sauce,error,locked out,Locked user cannot access
+TC003,wrong_user,wrong_pass,error,Username and password do not match,Invalid credentials
+TC004,,secret_sauce,error,Username is required,Empty username
+TC005,standard_user,,error,Password is required,Empty password
+TC006,performance_glitch_user,secret_sauce,success,,Performance glitch user

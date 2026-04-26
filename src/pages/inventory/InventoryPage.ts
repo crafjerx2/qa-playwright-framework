@@ -1,7 +1,6 @@
 import { Page, Locator } from '@playwright/test';
 import { BasePage } from '../base/BasePage';
 import { INavigable, IListable } from '../base/interfaces';
-import { TestLogger } from '../../utils/Logger';
 import { NavigationBar } from '@components/NavigationBar';
 import { ProductCard } from '@components/ProductCard';
 import { DropdownComponent } from '@components/DropdownComponent';

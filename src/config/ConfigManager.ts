@@ -1,4 +1,3 @@
-import { TestLogger } from '@utils/Logger';
 import { EnvironmentConfig, FrameworkConfig } from './EnvironmentConfig';
 import * as dotenv from 'dotenv';
 import * as path from 'path';

@@ -19,8 +19,6 @@ import { TestLogger } from '@utils/Logger';
 export type ToastType = 'success' | 'error' | 'warning' | 'info';
 
 export class ToastComponent {
-  private readonly page: Page;
-
   // Common toast selectors — customize for your app
   private readonly toastContainer: Locator;
   private readonly successToast: Locator;
@@ -31,7 +29,6 @@ export class ToastComponent {
    * @param containerSelector - CSS selector for the toast container
    */
   constructor(page: Page, containerSelector: string = '.toast, [role="alert"], .notification') {
-    this.page = page;
     this.toastContainer = page.locator(containerSelector);
     this.successToast = page.locator('.toast-success, .alert-success');
     this.errorToast = page.locator('.toast-error, .alert-error');
