@@ -174,17 +174,17 @@ class ConfigManager {
    */
   printConfig(): void {
     const masked = { ...this._config };
-    TestLogger.config('\n\n\t=== Framework Configuration ===\n');
-    TestLogger.config(`Loaded files: ${this._loadResult.loadedFiles.join(', ')}`);
-    TestLogger.config(`Environment: ${this.environment}`);
-    TestLogger.config(`Base URL: ${this.baseUrl}`);
-    TestLogger.config(`API URL: ${this.apiBaseUrl}`);
-    TestLogger.config(`Browser: ${this.browserEngine}`);
-    TestLogger.config(`Headless: ${this.isHeadless}`);
-    TestLogger.config(`Workers: ${this.workerCount ?? 'auto'}`);
-    TestLogger.config(`Retries: ${this.retryCount}`);
-    TestLogger.config(`CI: ${this.isCI}`);
-    TestLogger.config(`Initialized: ${this._initializedAt.toISOString()} \n`);
+    console.log('\n\n\t=== Framework Configuration ===\n');
+    console.log(`Loaded files: ${this._loadResult.loadedFiles.join(', ')}`);
+    console.log(`Environment: ${this.environment}`);
+    console.log(`Base URL: ${this.baseUrl}`);
+    console.log(`API URL: ${this.apiBaseUrl}`);
+    console.log(`Browser: ${this.browserEngine}`);
+    console.log(`Headless: ${this.isHeadless}`);
+    console.log(`Workers: ${this.workerCount ?? 'auto'}`);
+    console.log(`Retries: ${this.retryCount}`);
+    console.log(`CI: ${this.isCI}`);
+    console.log(`Initialized: ${this._initializedAt.toISOString()} \n`);
     void masked;
   }
 

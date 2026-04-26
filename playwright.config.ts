@@ -31,7 +31,45 @@ export default defineConfig({
   globalSetup: './src/fixtures/globalSetup.ts',
   globalTeardown: './src/fixtures/globalTeardown.ts',
   // Reporter configuration
-  reporter: [['list', { printSteps: true }]],
+  reporter: [
+    // Custom reporter — our own
+    ['./src/reporting/CustomReporter.ts'],
+
+    // Playwright HTML — detailed visual report
+    [
+      'html',
+      {
+        outputFolder: config.reporting.htmlReportDir,
+        open: 'never',
+        host: 'localhost',
+        port: 9323,
+      },
+    ],
+
+    // Allure — advanced analytics dashboard
+    [
+      'allure-playwright',
+      {
+        outputFolder: config.reporting.allureResultsDir,
+        suiteTitle: false,
+        environmentInfo: {
+          Environment: config.application.environment,
+          Browser: config.browser.engine,
+          BaseUrl: config.application.baseUrl,
+          Framework: 'Playwright + TypeScript',
+          NodeVersion: process.version,
+        },
+      },
+    ],
+    // JSON — for CI integration
+    ['json', { outputFile: config.reporting.jsonReportPath }],
+
+    // JUnit XML — for Azure DevOps / Jenkins
+    ['junit', { outputFile: 'test-results/junit-results.xml' }],
+
+    // List — minimal console output (used by CustomReporter)
+    process.env['CI'] ? ['dot'] : ['list'],
+  ],
 
   // Global test configuration
   use: {
@@ -53,6 +91,8 @@ export default defineConfig({
     trace: config.reporting.traceMode,
     // Ignore Https Error
     ignoreHTTPSErrors: true,
+    // Tell Playwright which attribute to use for getByTestId()
+    testIdAttribute: 'data-test',
   },
 
   // Multi-browser projects
@@ -68,14 +108,24 @@ export default defineConfig({
 
     {
       name: 'firefox',
-      use: { ...devices['Desktop Firefox'] },
+      use: {
+        ...devices['Desktop Firefox'],
+        actionTimeout: 20_000,
+        navigationTimeout: 45_000,
+      },
       testMatch: ['**/ui/**'],
+      fullyParallel: false,
     },
 
     {
       name: 'webkit',
-      use: { ...devices['Desktop Safari'] },
+      use: {
+        ...devices['Desktop Safari'],
+        actionTimeout: 20_000,
+        navigationTimeout: 45_000,
+      },
       testMatch: ['**/ui/**'],
+      fullyParallel: false,
     },
     // Mobile testing
     {

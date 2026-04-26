@@ -1,3 +1,4 @@
+import { Selectors, Timeouts } from '@config/Constants';
 import { Page, Locator } from '@playwright/test';
 import { TestLogger } from '@utils/Logger';
 
@@ -29,7 +30,7 @@ export class NavigationBar {
 
   async getCartCount(): Promise<number> {
     try {
-      await this.cartBadge.waitFor({ state: 'visible', timeout: 2000 });
+      await this.cartBadge.waitFor({ state: 'visible', timeout: Timeouts.SHORT });
       const text = await this.cartBadge.innerText();
       return parseInt(text);
     } catch {
@@ -44,7 +45,7 @@ export class NavigationBar {
   async openMenu(): Promise<void> {
     TestLogger.step('Opening hamburger menu');
     await this.hamburgerMenu.click();
-    await this.page.waitForTimeout(300); // menu animation
+    await this.page.waitForTimeout(Timeouts.ANIMATION); // menu animation
   }
 
   async logout(): Promise<void> {

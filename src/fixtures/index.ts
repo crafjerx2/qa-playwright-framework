@@ -34,6 +34,8 @@ import { UserBuilder, TestUser } from '../data/factories/UserBuilder';
 import { BrowserType, DeviceProfile } from '../config/BrowserOptions';
 import { AUTH_STATE_PATH } from './globalSetup';
 import * as fs from 'fs';
+import { ScreenshotHelper } from '@utils/ScreenshotHelper';
+import { ReportManager } from '../reporting/ReportManager';
 
 // ─── Fixture type definitions ─────────────────────────────────
 
@@ -74,19 +76,21 @@ interface DataFixtures {
 
 type AllFixtures = BrowserFixtures & PageFixtures & DataFixtures;
 
+//Env variables
+const browserName = process.env['BROWSER'] ?? 'chromium';
+const deviceName = process.env['DEVICE'] ?? 'desktop';
+
 // ─── Extended test with custom fixtures ──────────────────────
 
 export const test = base.extend<AllFixtures>({
   // ─── Browser fixtures ───────────────────────────────────────
 
   browserType: async ({}, use) => {
-    const bt = (process.env['BROWSER'] ?? 'chromium') as BrowserType;
-    await use(bt);
+    await use(browserName as BrowserType);
   },
 
   deviceProfile: async ({}, use) => {
-    const dp = (process.env['DEVICE'] ?? 'desktop') as DeviceProfile;
-    await use(dp);
+    await use(deviceName as DeviceProfile);
   },
 
   /**
@@ -94,11 +98,7 @@ export const test = base.extend<AllFixtures>({
    * CONTEXT ISOLATION: Complete fresh state — no cookies, no storage.
    */
   isolatedContext: async ({ browser, browserType, deviceProfile }, use) => {
-    const testInfo = test.info();
-    TestLogger.config(`Creating isolated context for: ${testInfo.title}`);
-
     const context = await BrowserManager.createContext(browser, browserType, deviceProfile);
-
     await use(context);
 
     // Cleanup — always runs even if test fails
@@ -112,15 +112,9 @@ export const test = base.extend<AllFixtures>({
   authenticatedContext: async ({ browser }, use) => {
     const authStateExists = fs.existsSync(AUTH_STATE_PATH);
 
-    let context: BrowserContext;
-
-    if (authStateExists) {
-      // TestLogger.config('Using saved auth state');
-      context = await BrowserManager.createAuthenticatedContext(browser, AUTH_STATE_PATH);
-    } else {
-      //TestLogger.config('Auth state not found — creating fresh context');
-      context = await BrowserManager.createContext(browser);
-    }
+    const context = authStateExists
+      ? await BrowserManager.createAuthenticatedContext(browser, AUTH_STATE_PATH)
+      : await BrowserManager.createContext(browser);
 
     await use(context);
     await BrowserManager.closeContext(context);
@@ -146,11 +140,9 @@ export const test = base.extend<AllFixtures>({
    * Uses the default Playwright 'page' fixture (isolated per test).
    */
   loginPage: async ({ page }, use) => {
-    TestLogger.config('Fixture: setting up LoginPage');
     const loginPage = new LoginPage(page);
     await loginPage.navigate();
     await use(loginPage);
-    TestLogger.config('Fixture: LoginPage teardown');
   },
 
   /**
@@ -166,29 +158,33 @@ export const test = base.extend<AllFixtures>({
    * Uses saved auth state for speed.
    * Falls back to full login if auth state doesn't exist.
    */
-  authenticatedInventoryPage: async ({ authenticatedContext }, use) => {
-    const page = await BrowserManager.createPage(authenticatedContext);
+  authenticatedInventoryPage: async ({ browser, page: _page }, use, testInfo) => {
+    TestLogger.testStart(testInfo.title);
+
+    // Add test metadata to report
+    ReportManager.addDescription(
+      testInfo,
+      `Environment: ${Config.environment} | Browser: ${Config.browserEngine}`,
+    );
+
+    const authStateExists = fs.existsSync(AUTH_STATE_PATH);
+    const context = authStateExists
+      ? await BrowserManager.createAuthenticatedContext(browser, AUTH_STATE_PATH)
+      : await BrowserManager.createContext(browser);
+
+    const page = await BrowserManager.createPage(context);
     const factory = new PageFactory(page);
 
     let inventoryPage: InventoryPage;
-
     try {
       // Try to use saved auth state
       const inventory = factory.createInventoryPage();
       await inventory.navigate();
       const loaded = await inventory.isLoaded();
 
-      if (loaded) {
-        inventoryPage = inventory;
-        //TestLogger.config('Fixture: using saved auth state successfully');
-      } else {
-        // Fall back to full login
-        //TestLogger.config('Fixture: auth state invalid — performing full login');
-        inventoryPage = await factory.createAuthenticatedInventoryPage(
-          Config.testUsername,
-          Config.testPassword,
-        );
-      }
+      inventoryPage = loaded
+        ? inventory
+        : await factory.createAuthenticatedInventoryPage(Config.testUsername, Config.testPassword);
     } catch {
       // If anything fails, do full login
       inventoryPage = await factory.createAuthenticatedInventoryPage(
@@ -198,23 +194,37 @@ export const test = base.extend<AllFixtures>({
     }
 
     await use(inventoryPage);
-    //TestLogger.config('Fixture: authenticated InventoryPage teardown');
+
+    // ─── Teardown with reporting ──────────────────────────────
+
+    // Capture screenshot on failure
+    if (testInfo.status !== 'passed') {
+      await ScreenshotHelper.captureOnFailure(page, testInfo);
+
+      // Get video path if recorded
+      const videoPath = await ScreenshotHelper.getVideoPath(page);
+      if (videoPath) {
+        TestLogger.video(videoPath);
+      }
+
+      TestLogger.testFail(testInfo.title, testInfo.error?.message ?? 'Unknown');
+    } else {
+      TestLogger.testPass(testInfo.title, testInfo.duration);
+    }
+
+    await BrowserManager.closeContext(context);
   },
 
   // ─── Test data fixtures ──────────────────────────────────────
-
   standardUser: async ({}, use) => {
     await use(UserBuilder.standard().build());
   },
-
   lockedUser: async ({}, use) => {
     await use(UserBuilder.locked().build());
   },
-
   problemUser: async ({}, use) => {
     await use(UserBuilder.locked().asProblemUser().build());
   },
-
   randomUser: async ({}, use) => {
     await use(UserBuilder.random().build());
   },

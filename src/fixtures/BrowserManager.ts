@@ -24,6 +24,7 @@
 import { Browser, BrowserContext, Page, chromium, firefox, webkit } from '@playwright/test';
 import { BrowserType, DeviceProfile, BrowserOptionsFactory } from '@config/BrowserOptions';
 import { TestLogger } from '@utils/Logger';
+import * as fs from 'fs';
 
 /**
  * State stored per browser context.
@@ -62,7 +63,7 @@ export class BrowserManager {
   static async launchBrowser(browserType: BrowserType = 'chromium'): Promise<Browser> {
     const { launchOptions } = BrowserOptionsFactory.getConfig(browserType);
 
-    TestLogger.config(`Launching browser: ${browserType}`);
+    console.log(`Launching browser: ${browserType}`);
 
     switch (browserType) {
       case 'chromium':
@@ -111,7 +112,7 @@ export class BrowserManager {
       pageCount: 0,
     });
 
-    TestLogger.config(`Context created: ${contextId} [${browserType}/${device}]`);
+    console.log(`Context created: ${contextId} [${browserType}/${device}]`);
 
     return context;
   }
@@ -126,7 +127,7 @@ export class BrowserManager {
   static async createApiContext(browser: Browser, token?: string): Promise<BrowserContext> {
     const contextOptions = BrowserOptionsFactory.getApiContextOptions(token);
     const context = await browser.newContext(contextOptions);
-    TestLogger.config('API context created');
+    console.log('API context created');
     return context;
   }
 
@@ -145,13 +146,27 @@ export class BrowserManager {
     browser: Browser,
     storageStatePath: string,
   ): Promise<BrowserContext> {
-    // TestLogger.config(`Creating authenticated context from: ${storageStatePath}`);
+    TestLogger.step(`Creating authenticated context from: ${storageStatePath}`);
+
+    // Verify the file exists and is valid JSON before using it
+    try {
+      const content = fs.readFileSync(storageStatePath, 'utf-8');
+      JSON.parse(content);
+    } catch {
+      TestLogger.warn('Auth state file invalid — creating fresh context');
+      return BrowserManager.createContext(browser);
+    }
 
     const { contextOptions } = BrowserOptionsFactory.getConfig('chromium');
-    return browser.newContext({
-      ...contextOptions,
-      storageState: storageStatePath,
-    });
+    try {
+      return await browser.newContext({
+        ...contextOptions,
+        storageState: storageStatePath,
+      });
+    } catch (error) {
+      TestLogger.warn(`Storage state failed: ${String(error)} — using fresh context`);
+      return BrowserManager.createContext(browser);
+    }
   }
 
   // ─── Page creation ───────────────────────────────────────────
@@ -216,7 +231,7 @@ export class BrowserManager {
       await context.close();
       //TestLogger.config('Browser context closed');
     } catch (error) {
-      TestLogger.config(`Warning: error closing context: ${String(error)}`);
+      console.warn(`Warning: error closing context: ${String(error)}`);
     }
   }
 
@@ -230,7 +245,7 @@ export class BrowserManager {
       await browser.close();
       //TestLogger.config('Browser closed');
     } catch (error) {
-      TestLogger.config(`Warning: error closing browser: ${String(error)}`);
+      console.log(`Warning: error closing browser: ${String(error)}`);
     }
   }
 

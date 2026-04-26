@@ -76,7 +76,7 @@ export abstract class BasePage implements IBasePage, IPageLoadable {
    * @throws Error if page does not load within the timeout
    */
   async waitForLoad(): Promise<void> {
-    await this.page.waitForLoadState('networkidle');
+    await this.page.waitForLoadState('domcontentloaded');
     const loaded = await this.isLoaded();
     if (!loaded) {
       await this.takeScreenshot(`load-failure-${this.constructor.name}`);
